@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FindMyPhone</string>
+<string name="title_settings">Find My Phone Settings</string>
+<string name="title_service_active">Active</string>
+<string name="summary_service_active">Check this to activate the service</string>
+<string name="title_secret_text">Secret text</string>
+<string name="summary_secret_text">This is the text that you need to supply to remotely control this phone</string>
+<string name="dialog_secret_text">Please enter secret text</string>
+</resources>
