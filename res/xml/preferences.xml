@@ -35,6 +35,7 @@
                 android:summary="@string/summary_secret_text"
                 android:dialogTitle="@string/dialog_secret_text" />
 
-    </PreferenceCategory>
+    <CheckBoxPreference android:key="test_command" android:title="@string/title_test" android:summary="@string/summary_test"></CheckBoxPreference>
+</PreferenceCategory>
     
 </PreferenceScreen>

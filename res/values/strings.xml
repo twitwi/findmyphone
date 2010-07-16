@@ -7,4 +7,6 @@
 <string name="title_secret_text">Secret text</string>
 <string name="summary_secret_text">This is the text that you need to supply to remotely control this phone</string>
 <string name="dialog_secret_text">Please enter secret text</string>
+<string name="title_test">Test</string>
+<string name="summary_test">Click to do a dry-run without sending an SMS</string>
 </resources>
