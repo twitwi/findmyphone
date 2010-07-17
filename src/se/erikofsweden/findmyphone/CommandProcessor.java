@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
-import android.widget.Toast;
 
 public class CommandProcessor implements LocationListener {
 
@@ -21,28 +20,31 @@ public class CommandProcessor implements LocationListener {
 	private boolean inSearch;
 	private LocationManager locationManager;
 	private String currentFromAddress;
+	private GpsTimeoutThread gpsTimeout;
+	private String currentProvider;
 
 	public CommandProcessor(Context context) {
 		this.context = context;
 	}
 
 	private void retreiveBestLocation(boolean networkOk) {
+		currentProvider = null;
 		if(inSearch) {
 			locationManager.removeUpdates(this);
 		}
 		// Check if we have an old location that will do
 		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		long threshold = Calendar.getInstance().getTimeInMillis() - 1000 * 60 * 5;
+		long threshold = Calendar.getInstance().getTimeInMillis() - 1000 * 60 * 5 * 0;
 		if(location != null && location.getTime() > threshold ) {
-			processLocation(location); // Found an OK GPS location
+			processLocation(location, LocationManager.GPS_PROVIDER); // Found an OK GPS location
 		} else if(networkOk) { // Check if we have a current network location
 			if(!providerExists(LocationManager.NETWORK_PROVIDER)) {
 				Log.d("FindMyPhone", "Failed to get network location. Taking last known GPS location even though it's old");
-				processLocation(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+				processLocation(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER), LocationManager.GPS_PROVIDER);
 			} else {
 				location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 				if(location != null && location.getTime() > threshold) {
-					processLocation(location); // Found an OK Network location
+					processLocation(location, LocationManager.NETWORK_PROVIDER); // Found an OK Network location
 				} else {
 					inSearch = true;
 					locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
@@ -51,40 +53,34 @@ public class CommandProcessor implements LocationListener {
 		} else { // Try to get GPS fix
 			Log.d("FindMyPhone", "Trying to get GPS Fix");
 			inSearch = true;
+			currentProvider = LocationManager.GPS_PROVIDER;
 			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000 * 5, 0, this);
-			try {
-				Thread.sleep(30 * 1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if(inSearch) {
-				Log.d("FindMyPhone", "GPS Location timeout!");
-				abortGpsSearch();
-			}
+			gpsTimeout = new GpsTimeoutThread(this);
+			gpsTimeout.timeoutGps(30 * 1000);
 		}
 	}
 
 	private boolean providerExists(String checkProvider) {
 		List<String> plist = locationManager.getAllProviders();
 		Log.d("FindMyPhone", "providerExists " + plist.size());
+		boolean result = false;
 		for (Iterator<String> iterator = plist.iterator(); iterator.hasNext();) {
 			String provider = iterator.next();
 			Log.d("FindMyPhone", "Checking providers... " + provider);
 			if(checkProvider.equals(provider)) {
-				return true;
+				result  = true;
 			}
 		}
-		return false;
+		return result;
 	}
 
 	@Override
 	public void onLocationChanged(Location location) {
-		processLocation(location);
+		processLocation(location, currentProvider);
 		locationManager.removeUpdates(this);
 	}
 
-	private void processLocation(Location location) {
+	private void processLocation(Location location, String provider) {
 		inSearch = false;
 		if(location == null) {
 			Log.d("FindMyPhone", "Failed to get location!");
@@ -94,14 +90,14 @@ public class CommandProcessor implements LocationListener {
 			float acc = location.getAccuracy();
 			if(!location.hasAccuracy()) acc = -1;
 			Log.d("FindMyPhone", "Got fix! lat " + lat + ", long " + lon + ", acc " + acc);
-			String txt = "FindMyPhone found your phone here (Accuracy: " + acc + ")";
+			String txt = "FindMyPhone found your phone here (Accuracy: " + acc + " - " + provider + ")";
 			txt += " http://maps.google.com/maps?q=" + lat + "," + lon + "%20(Your%20Phone%20is%20here)";
 			if(currentFromAddress != null) {
 				SmsManager smsManager = SmsManager.getDefault();
 				smsManager.sendTextMessage(currentFromAddress, null, txt, null, null);
 			} else {
 				Log.d("FindMyPhone", "No SMS! " + txt);
-				Toast.makeText(context, txt, Toast.LENGTH_LONG).show();
+//				Toast.makeText(context, txt, Toast.LENGTH_LONG).show();
 			}
 		}
 	}
@@ -119,10 +115,10 @@ public class CommandProcessor implements LocationListener {
 			Log.d("FindMyPhone", "AbortGPSSearch called. Removing listener");
 			inSearch = false;
 			locationManager.removeUpdates(this);
+			// Try Network fix instead
+			Log.d("FindMyPhone", "Trying Network location");
+			retreiveBestLocation(true);
 		}
-		// Try Network fix instead
-		Log.d("FindMyPhone", "Trying Network location");
-		retreiveBestLocation(true);
 	}
 
 	@Override

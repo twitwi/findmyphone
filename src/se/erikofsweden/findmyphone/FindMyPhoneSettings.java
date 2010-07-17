@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
-import android.telephony.SmsMessage;
 import android.util.Log;
 
 public class FindMyPhoneSettings extends PreferenceActivity {
