@@ -1,14 +1,18 @@
 package se.erikofsweden.findmyphone;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
@@ -34,7 +38,7 @@ public class CommandProcessor implements LocationListener {
 		}
 		// Check if we have an old location that will do
 		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		long threshold = Calendar.getInstance().getTimeInMillis() - 1000 * 60 * 5 * 0;
+		long threshold = Calendar.getInstance().getTimeInMillis() - 1000 * 60 * 5;
 		if(location != null && location.getTime() > threshold ) {
 			processLocation(location, LocationManager.GPS_PROVIDER); // Found an OK GPS location
 		} else if(networkOk) { // Check if we have a current network location
@@ -90,8 +94,9 @@ public class CommandProcessor implements LocationListener {
 			float acc = location.getAccuracy();
 			if(!location.hasAccuracy()) acc = -1;
 			Log.d("FindMyPhone", "Got fix! lat " + lat + ", long " + lon + ", acc " + acc);
-			String txt = "FindMyPhone found your phone here (Accuracy: " + acc + " - " + provider + ")";
-			txt += " http://maps.google.com/maps?q=" + lat + "," + lon + "%20(Your%20Phone%20is%20here)";
+			String txt = "FindMyPhone found your phone here (Accuracy: " + acc + " - " + provider + ") ";
+			txt += getAddressFromLocation(location);			
+			txt += " http://maps.google.com/maps?q=" + lat + "," + lon + "%20(Your%20Phone%20" + acc + "m)";
 			if(currentFromAddress != null) {
 				SmsManager smsManager = SmsManager.getDefault();
 				smsManager.sendTextMessage(currentFromAddress, null, txt, null, null);
@@ -99,7 +104,31 @@ public class CommandProcessor implements LocationListener {
 				Log.d("FindMyPhone", "No SMS! " + txt);
 //				Toast.makeText(context, txt, Toast.LENGTH_LONG).show();
 			}
+			currentFromAddress = null;
 		}
+	}
+
+	private String getAddressFromLocation(Location location) {
+		String txt = "";
+		Geocoder geo = new Geocoder(context);
+		try {
+			List<Address> georesult = geo.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+			if(georesult != null && georesult.size() > 0) {
+				Address adr = georesult.get(0);
+				for(int t = 0; t < adr.getMaxAddressLineIndex() ; t++) {
+					if(adr.getAddressLine(t) != null) {
+						txt += " " + adr.getAddressLine(t);
+					}
+				}
+				if(adr.getLocality() != null) {
+					txt += " " + adr.getLocality();
+				}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return txt.trim();
 	}
 
 	@Override
@@ -144,13 +173,21 @@ public class CommandProcessor implements LocationListener {
 
 	public void processCommand(SmsMessage msg) {
 		currentFromAddress = msg.getOriginatingAddress();
-		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-		retreiveBestLocation(false);
+		processCommand(msg.getMessageBody());
 	}
 
 	public void processCommand(String command) {
-		currentFromAddress = null;
 		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-		retreiveBestLocation(false);		
+		turnOnRinger();
+		retreiveBestLocation(false);
+	}
+
+	private void turnOnRinger() {
+		AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+		int max = am.getStreamMaxVolume(AudioManager.STREAM_RING);
+		int prev = am.getStreamVolume(AudioManager.STREAM_RING);
+		Log.d("FindMyPhone", "Resetting ringer from " + prev + " to " + max);
+		am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+		am.setStreamVolume(AudioManager.STREAM_RING, max, 0);
 	}
 }
