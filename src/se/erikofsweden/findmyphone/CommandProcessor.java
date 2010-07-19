@@ -60,7 +60,7 @@ public class CommandProcessor implements LocationListener {
 			currentProvider = LocationManager.GPS_PROVIDER;
 			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000 * 5, 0, this);
 			gpsTimeout = new GpsTimeoutThread(this);
-			gpsTimeout.timeoutGps(30 * 1000);
+			gpsTimeout.timeoutGps(60 * 1000);
 		}
 	}
 
@@ -91,13 +91,11 @@ public class CommandProcessor implements LocationListener {
 		} else {
 			double lat = location.getLatitude();
 			double lon = location.getLongitude();
-			float acc = location.getAccuracy();
-			if(!location.hasAccuracy()) acc = -1;
-			Log.d("FindMyPhone", "Got fix! lat " + lat + ", long " + lon + ", acc " + acc);
-			String txt = "FindMyPhone found your phone here (Accuracy: " + acc + " - " + provider + ") ";
-			txt += getAddressFromLocation(location);			
-			txt += " http://maps.google.com/maps?q=" + lat + "," + lon + "%20(Your%20Phone%20" + acc + "m)";
+			Log.d("FindMyPhone", "Got fix! lat " + lat + ", long " + lon);
+			String txt = getSmsTextByLocation(location, provider);
 			if(currentFromAddress != null) {
+				Log.d("FindMyPhone", "Sending SMS response to " + currentFromAddress);
+				Log.d("FindMyPhone", txt.length() + " " + txt);
 				SmsManager smsManager = SmsManager.getDefault();
 				smsManager.sendTextMessage(currentFromAddress, null, txt, null, null);
 			} else {
@@ -108,6 +106,25 @@ public class CommandProcessor implements LocationListener {
 		}
 	}
 
+	private String getSmsTextByLocation(Location location, String provider) {
+		float acc = location.getAccuracy();
+		if(!location.hasAccuracy()) acc = -1;
+		String txt = "FindMyPhone (Acc: " + acc + " - " + provider + ") ";
+		txt += getAddressFromLocation(location);
+		txt += getGmapsUrl(location);
+		if(txt.length() > 160) {
+			// Only send the neccesary info
+			txt = "FindMyPhone " + getGmapsUrl(location);
+		}
+		return txt;
+	}
+
+	private String getGmapsUrl(Location location) {
+		String acc = String.valueOf(location.getAccuracy());
+		if(!location.hasAccuracy()) acc = "?";
+		return " http://maps.google.com/maps?q=" + location.getLatitude() + "," + location.getLongitude() + "%20(Your%20Phone%20" + acc + "m)";
+	}
+
 	private String getAddressFromLocation(Location location) {
 		String txt = "";
 		Geocoder geo = new Geocoder(context);
@@ -115,14 +132,15 @@ public class CommandProcessor implements LocationListener {
 			List<Address> georesult = geo.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
 			if(georesult != null && georesult.size() > 0) {
 				Address adr = georesult.get(0);
+				Log.d("FindMyPhone", "Geocoder " + georesult.size());
 				for(int t = 0; t < adr.getMaxAddressLineIndex() ; t++) {
 					if(adr.getAddressLine(t) != null) {
 						txt += " " + adr.getAddressLine(t);
 					}
 				}
-				if(adr.getLocality() != null) {
-					txt += " " + adr.getLocality();
-				}
+//				if(adr.getLocality() != null) {
+//					txt += " LOC: <" + adr.getLocality() + ">";
+//				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -173,6 +191,7 @@ public class CommandProcessor implements LocationListener {
 
 	public void processCommand(SmsMessage msg) {
 		currentFromAddress = msg.getOriginatingAddress();
+		Log.d("FindMyPhone", "processCommand from " + currentFromAddress);
 		processCommand(msg.getMessageBody());
 	}
 

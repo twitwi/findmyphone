@@ -19,7 +19,7 @@ public class FindMyPhoneSettings extends PreferenceActivity {
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
     		Preference preference) {
-    	Log.d("FindMyPhone", "Pref clicked " + preference.getKey());
+    	Log.d("FindMyPhone", "Pref clicked " + preference.getKey()); // + " = " + preference.getSharedPreferences().getString(preference.getKey(), ""));
     	if(preference.getKey().equals("test_command")) {
 			if(cmd == null) {
 				cmd = new CommandProcessor(this.getApplicationContext());
