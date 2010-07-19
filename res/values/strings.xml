@@ -8,5 +8,8 @@
 <string name="summary_secret_text">This is the text that you need to supply to remotely control this phone</string>
 <string name="dialog_secret_text">Please enter secret text</string>
 <string name="title_test">Test</string>
-<string name="summary_test">Click to do a dry-run without sending an SMS</string>
+<string name="summary_test">Click to do a dry-run without sending an SMS. Needs debugger connected</string>
+<string name="title_report_phone">Report phone number</string>
+<string name="summary_report_phone">Send SIM changes to this number</string>
+<string name="dialog_report_phone">Enter the number that should receive SIM-changes</string>
 </resources>

@@ -35,6 +35,13 @@
                 android:summary="@string/summary_secret_text"
                 android:dialogTitle="@string/dialog_secret_text" />
 
+        <EditTextPreference
+                android:defaultValue="" 
+                android:key="report_phone"
+                android:title="@string/title_report_phone"
+                android:summary="@string/summary_report_phone"
+                android:dialogTitle="@string/dialog_report_phone" />
+
     <CheckBoxPreference android:key="test_command" android:title="@string/title_test" android:summary="@string/summary_test"></CheckBoxPreference>
 </PreferenceCategory>
     

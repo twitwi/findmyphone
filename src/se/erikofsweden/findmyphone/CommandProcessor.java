@@ -93,7 +93,7 @@ public class CommandProcessor implements LocationListener {
 			double lon = location.getLongitude();
 			Log.d("FindMyPhone", "Got fix! lat " + lat + ", long " + lon);
 			String txt = getSmsTextByLocation(location, provider);
-			if(currentFromAddress != null) {
+			if(currentFromAddress != null && currentFromAddress.length() > 0) {
 				Log.d("FindMyPhone", "Sending SMS response to " + currentFromAddress);
 				Log.d("FindMyPhone", txt.length() + " " + txt);
 				SmsManager smsManager = SmsManager.getDefault();
@@ -129,6 +129,7 @@ public class CommandProcessor implements LocationListener {
 		String txt = "";
 		Geocoder geo = new Geocoder(context);
 		try {
+			Log.d("FindMyPhone", "running geo.getFromLocation");
 			List<Address> georesult = geo.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
 			if(georesult != null && georesult.size() > 0) {
 				Address adr = georesult.get(0);
@@ -141,8 +142,11 @@ public class CommandProcessor implements LocationListener {
 //				if(adr.getLocality() != null) {
 //					txt += " LOC: <" + adr.getLocality() + ">";
 //				}
+			} else {
+				Log.d("FinMyPhone", "Couldn't find geo-location");
 			}
 		} catch (IOException e) {
+			Log.d("FindMyPhone", "getAdressFromLocation: Got IO Exception");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -190,12 +194,12 @@ public class CommandProcessor implements LocationListener {
 	}
 
 	public void processCommand(SmsMessage msg) {
-		currentFromAddress = msg.getOriginatingAddress();
 		Log.d("FindMyPhone", "processCommand from " + currentFromAddress);
-		processCommand(msg.getMessageBody());
+		processCommand(msg.getMessageBody(), msg.getOriginatingAddress());
 	}
 
-	public void processCommand(String command) {
+	public void processCommand(String command, String fromAddress) {
+		currentFromAddress = fromAddress;
 		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		turnOnRinger();
 		retreiveBestLocation(false);

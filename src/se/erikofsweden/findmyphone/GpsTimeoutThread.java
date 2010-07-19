@@ -20,7 +20,7 @@ public class GpsTimeoutThread extends Thread implements Runnable {
 		super.run();
 		if(gpsTimeout > 0) {
 			try {
-				Thread.sleep(30 * 1000);
+				Thread.sleep(gpsTimeout);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
