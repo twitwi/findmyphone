@@ -20,38 +20,42 @@ public class FindMyPhoneCheckPhoneNumber extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Log.d("FindMyPhone", "Got a boot message!");
-		TelephonyManager tMgr =(TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-		String nr = tMgr.getLine1Number();
-		Log.d("FindMyPhone", "Current phonenumber " + nr);
-		String lastNr = readLastNumber(context);
-		Log.d("FindMyPhone", "Last number " + lastNr);
-		saveLastNumber(context, nr);
-		if(nr != null && !nr.equals(lastNr)) {
-			Log.d("FindMyPhone", "Number change!");
-			SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-			String sendToNumber = pref.getString("report_phone", "");
-			if(sendToNumber.length() > 0) {
-				if(cmd == null) {
-					cmd = new CommandProcessor(context);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+		boolean active = pref.getBoolean("service_active", false);
+		String sendToNumber = pref.getString("report_phone", "");
+		if(active) {
+			TelephonyManager tMgr =(TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+			String nr = tMgr.getLine1Number();
+			Log.d("FindMyPhone", "Current phonenumber " + nr);
+			String lastNr = readLastNumber(context);
+			Log.d("FindMyPhone", "Last number " + lastNr);
+			saveLastNumber(context, nr);
+			if(nr != null && !nr.equals(lastNr) && lastNr != null && lastNr.length() > 0) {
+				Log.d("FindMyPhone", "Number change!");
+				if(sendToNumber.length() > 0) {
+					if(cmd == null) {
+						cmd = new CommandProcessor(context);
+					}
+					cmd.processCommand("sim_change", sendToNumber);
 				}
-				cmd.processCommand("sim_change", sendToNumber);
 			}
 		}
 	}
 
 	public static void saveLastNumber(Context context, String nr) {
-		FileOutputStream fos;
-		try {
-			fos = context.openFileOutput("settings_current_phone", Context.MODE_PRIVATE);
-			fos.write(nr.getBytes());
-			fos.close();
-			Log.d("FindMyPhone", "Saved last number " + nr);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(nr != null && nr.length() > 0) {
+			try {
+				FileOutputStream fos = context.openFileOutput("settings_current_phone", Context.MODE_PRIVATE);
+				fos.write(nr.getBytes());
+				fos.close();
+				Log.d("FindMyPhone", "Saved last number " + nr);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
