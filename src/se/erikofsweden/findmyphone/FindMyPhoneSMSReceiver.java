@@ -17,7 +17,7 @@ public class FindMyPhoneSMSReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 		boolean active = pref.getBoolean("service_active", false);
-		String secret = pref.getString("secret_text", "");
+		String secret = pref.getString("secret_text", "").toLowerCase();
 		if(active && secret.length() > 0) {
 			Bundle bundle = intent.getExtras();        
 	        if (bundle != null)
@@ -27,9 +27,8 @@ public class FindMyPhoneSMSReceiver extends BroadcastReceiver {
 					SmsMessage msg = SmsMessage.createFromPdu((byte[])pdus[i]);
 					String from = msg.getOriginatingAddress();
 					String txt = msg.getMessageBody().toString();
-					Log.d("FindMyPhone", "From " + from);
-					Log.d("FindMyPhone", "Txt " + txt);
-					if(txt.indexOf(secret) == 0) {
+					Log.d("FindMyPhone", "Got SMS " + from + ": " + txt);
+					if(txt.toLowerCase().indexOf(secret) == 0) {
 						Log.d("FindMyPhone", "Found secret text");
 						if(cmd == null) {
 							cmd = new CommandProcessor(context);
@@ -38,8 +37,6 @@ public class FindMyPhoneSMSReceiver extends BroadcastReceiver {
 					}
 				}
 	        }
-		} else {
-			Log.d("FindMyPhone", "Service not active");
 		}
 	}
 

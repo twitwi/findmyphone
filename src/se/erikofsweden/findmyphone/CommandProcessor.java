@@ -20,6 +20,9 @@ import android.util.Log;
 
 public class CommandProcessor implements LocationListener {
 
+	private static final int GPS_TIMEOUT = 1000 * 60; // 1 minute
+	private static final int GPS_UPDATE_INTERVAL = 1000 * 60 * 5; // 5 minutes
+	private static final long USE_OLD_FIX_THRESHOLD = 1000 * 60 * 5; // 5 minutes
 	private Context context;
 	private boolean inSearch;
 	private LocationManager locationManager;
@@ -38,7 +41,7 @@ public class CommandProcessor implements LocationListener {
 		}
 		// Check if we have an old location that will do
 		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		long threshold = Calendar.getInstance().getTimeInMillis() - 1000 * 60 * 5;
+		long threshold = Calendar.getInstance().getTimeInMillis() - USE_OLD_FIX_THRESHOLD;
 		if(location != null && location.getTime() > threshold ) {
 			processLocation(location, LocationManager.GPS_PROVIDER); // Found an OK GPS location
 		} else if(networkOk) { // Check if we have a current network location
@@ -58,9 +61,9 @@ public class CommandProcessor implements LocationListener {
 			Log.d("FindMyPhone", "Trying to get GPS Fix");
 			inSearch = true;
 			currentProvider = LocationManager.GPS_PROVIDER;
-			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000 * 5, 0, this);
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_UPDATE_INTERVAL, 0, this);
 			gpsTimeout = new GpsTimeoutThread(this);
-			gpsTimeout.timeoutGps(60 * 1000);
+			gpsTimeout.timeoutGps(GPS_TIMEOUT);
 		}
 	}
 
@@ -73,6 +76,7 @@ public class CommandProcessor implements LocationListener {
 			Log.d("FindMyPhone", "Checking providers... " + provider);
 			if(checkProvider.equals(provider)) {
 				result  = true;
+				break;
 			}
 		}
 		return result;
@@ -86,29 +90,33 @@ public class CommandProcessor implements LocationListener {
 
 	private void processLocation(Location location, String provider) {
 		inSearch = false;
+		String txt = "";
 		if(location == null) {
 			Log.d("FindMyPhone", "Failed to get location!");
+			txt = "FindMyPhone: Couldn't retreive location via GPS or network. Gave up!";
 		} else {
 			double lat = location.getLatitude();
 			double lon = location.getLongitude();
 			Log.d("FindMyPhone", "Got fix! lat " + lat + ", long " + lon);
-			String txt = getSmsTextByLocation(location, provider);
-			if(currentFromAddress != null && currentFromAddress.length() > 0) {
-				Log.d("FindMyPhone", "Sending SMS response to " + currentFromAddress);
-				Log.d("FindMyPhone", txt.length() + " " + txt);
-				SmsManager smsManager = SmsManager.getDefault();
-				smsManager.sendTextMessage(currentFromAddress, null, txt, null, null);
-			} else {
-				Log.d("FindMyPhone", "No SMS! " + txt);
-//				Toast.makeText(context, txt, Toast.LENGTH_LONG).show();
-			}
-			currentFromAddress = null;
+			txt = getSmsTextByLocation(location, provider);
 		}
+		if(currentFromAddress != null && currentFromAddress.length() > 0) {
+			Log.d("FindMyPhone", "Sending SMS response to " + currentFromAddress);
+			Log.d("FindMyPhone", txt.length() + " " + txt);
+			SmsManager smsManager = SmsManager.getDefault();
+			smsManager.sendTextMessage(currentFromAddress, null, txt, null, null);
+		} else {
+			Log.d("FindMyPhone", "No SMS! " + txt);
+		}
+		currentFromAddress = null;
 	}
 
 	private String getSmsTextByLocation(Location location, String provider) {
 		float acc = location.getAccuracy();
 		if(!location.hasAccuracy()) acc = -1;
+		if(provider == null) {
+			provider = "";
+		}
 		String txt = "FindMyPhone (Acc: " + acc + " - " + provider + ") ";
 		txt += getAddressFromLocation(location);
 		txt += getGmapsUrl(location);
@@ -147,7 +155,6 @@ public class CommandProcessor implements LocationListener {
 			}
 		} catch (IOException e) {
 			Log.d("FindMyPhone", "getAdressFromLocation: Got IO Exception");
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return txt.trim();
@@ -184,7 +191,7 @@ public class CommandProcessor implements LocationListener {
 			switch(status) {
 			case LocationProvider.OUT_OF_SERVICE:
 			case LocationProvider.TEMPORARILY_UNAVAILABLE:
-				Log.d("FindMyPhone", "Location Not available yet");
+				Log.d("FindMyPhone", "Location Not available yet. Trying Network location");
 				inSearch = false;
 				locationManager.removeUpdates(this);
 				retreiveBestLocation(true);

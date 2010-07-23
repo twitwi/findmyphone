@@ -24,10 +24,9 @@ public class FindMyPhoneSettings extends PreferenceActivity {
 			if(cmd == null) {
 				cmd = new CommandProcessor(this.getApplicationContext());
 			}
-			//Log.d("FindMyPhone", "Reset last phone to +46123");
-			//FindMyPhoneCheckPhoneNumber.saveLastNumber(this.getApplicationContext(), "+46123");
 			cmd.processCommand("test", null);
     	}
     	return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
+    
 }

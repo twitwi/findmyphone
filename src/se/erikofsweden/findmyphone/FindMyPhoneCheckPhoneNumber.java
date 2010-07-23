@@ -15,20 +15,19 @@ import android.util.Log;
 
 public class FindMyPhoneCheckPhoneNumber extends BroadcastReceiver {
 
+	private static final int MAX_PHONE_NUMBER_LENGTH = 100;
 	private CommandProcessor cmd;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Log.d("FindMyPhone", "Got a boot message!");
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 		boolean active = pref.getBoolean("service_active", false);
 		String sendToNumber = pref.getString("report_phone", "");
 		if(active) {
 			TelephonyManager tMgr =(TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
 			String nr = tMgr.getLine1Number();
-			Log.d("FindMyPhone", "Current phonenumber " + nr);
 			String lastNr = readLastNumber(context);
-			Log.d("FindMyPhone", "Last number " + lastNr);
+			Log.d("FindMyPhone", "Last number " + lastNr + ", current " + nr);
 			saveLastNumber(context, nr);
 			if(nr != null && !nr.equals(lastNr) && lastNr != null && lastNr.length() > 0) {
 				Log.d("FindMyPhone", "Number change!");
@@ -62,11 +61,15 @@ public class FindMyPhoneCheckPhoneNumber extends BroadcastReceiver {
 	public static String readLastNumber(Context context) {
 		String lastNr = null;
 		try {
-			byte[] buf = new byte[40];
+			byte[] buf = new byte[MAX_PHONE_NUMBER_LENGTH + 1];
 			FileInputStream fis = context.openFileInput("settings_current_phone");
-			int count = fis.read(buf); // TODO read settings in a better way
+			int off = 0;
+			int count = 0;
+			while(off < MAX_PHONE_NUMBER_LENGTH && (count = fis.read(buf, off, MAX_PHONE_NUMBER_LENGTH - off)) != -1) {
+				off += count;
+			}
 			fis.close();
-			lastNr = new String(buf, 0, count);
+			lastNr = new String(buf, 0, off);
 			Log.d("FindMyPhone", "Read last number " + lastNr);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
