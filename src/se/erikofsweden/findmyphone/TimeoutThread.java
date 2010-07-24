@@ -3,12 +3,13 @@ package se.erikofsweden.findmyphone;
 public class TimeoutThread extends Thread implements Runnable {
 
 	private CommandProcessor commandProcessor;
-	private int gpsTimeout;
-	private int networkTimeout;
+	private int gpsTimeout = 0;
+	private int networkTimeout = 0;
 
 	public TimeoutThread(CommandProcessor commandProcessor) {
 		this.commandProcessor = commandProcessor;
 		this.gpsTimeout = 0;
+		this.networkTimeout = 0;
 	}
 
 	public void timeoutGps(int timeout) {
