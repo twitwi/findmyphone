@@ -42,7 +42,7 @@
                 android:summary="@string/summary_report_phone"
                 android:dialogTitle="@string/dialog_report_phone" />
 
-<!-- 
+<!--
       <CheckBoxPreference android:key="test_command" android:title="@string/title_test" android:summary="@string/summary_test"></CheckBoxPreference>
        -->
 </PreferenceCategory>

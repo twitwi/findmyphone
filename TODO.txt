@@ -1,0 +1,8 @@
+TODO
+Version 1.01
+* New save / load methods for using getSimSerialNumber
+* Super detailed logging for CommandProcessor, to help finding bugs
+
+Version 1.1
+* Set up alarm for detecting SIM-change and deactivate it once the SIM PIN is unlocked
+* Correct SMS sending functionality

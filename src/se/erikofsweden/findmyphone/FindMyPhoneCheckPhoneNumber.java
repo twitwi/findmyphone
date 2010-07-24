@@ -15,7 +15,6 @@ import android.util.Log;
 
 public class FindMyPhoneCheckPhoneNumber extends BroadcastReceiver {
 
-	private static final int MAX_PHONE_NUMBER_LENGTH = 100;
 	private CommandProcessor cmd;
 
 	@Override
@@ -25,12 +24,17 @@ public class FindMyPhoneCheckPhoneNumber extends BroadcastReceiver {
 		String sendToNumber = pref.getString("report_phone", "");
 		if(active) {
 			TelephonyManager tMgr =(TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-			String nr = tMgr.getLine1Number();
-			String lastNr = readLastNumber(context);
-			Log.d("FindMyPhone", "Last number " + lastNr + ", current " + nr);
-			saveLastNumber(context, nr);
-			if(nr != null && !nr.equals(lastNr) && lastNr != null && lastNr.length() > 0) {
-				Log.d("FindMyPhone", "Number change!");
+			if(tMgr.getSimState() == TelephonyManager.SIM_STATE_PIN_REQUIRED) {
+				// We should set up some kind of alarm and wait for like 5 mins to see if the SIM gets unlocked
+				Log.d(FindMyPhoneHelper.LOG_TAG, "SIM is locked. Can't see if it has changed. Need new functionality to wait for SIM PIN unlock");
+			}
+			String currentSerial = tMgr.getSimSerialNumber();
+			Log.d(FindMyPhoneHelper.LOG_TAG, "SIM Info: " + tMgr.getLine1Number() + ": " + tMgr.getSimSerialNumber() + ", " + tMgr.getSimState() + ", " + tMgr.getNetworkOperator() + ", " + tMgr.getSubscriberId());
+			String previousSerial = FindMyPhoneHelper.readPreviousSimSerialNumber(context);
+			Log.d(FindMyPhoneHelper.LOG_TAG, "Last number " + previousSerial + ", current " + currentSerial);
+			FindMyPhoneHelper.savePreviousSimSerialNumber(context, currentSerial);
+			if(previousSerial != null && !previousSerial.equals(currentSerial) && previousSerial.length() > 0) {
+				Log.d(FindMyPhoneHelper.LOG_TAG, "Number change!");
 				if(sendToNumber.length() > 0) {
 					if(cmd == null) {
 						cmd = new CommandProcessor(context);
@@ -39,46 +43,6 @@ public class FindMyPhoneCheckPhoneNumber extends BroadcastReceiver {
 				}
 			}
 		}
-	}
-
-	public static void saveLastNumber(Context context, String nr) {
-		if(nr != null && nr.length() > 0) {
-			try {
-				FileOutputStream fos = context.openFileOutput("settings_current_phone", Context.MODE_PRIVATE);
-				fos.write(nr.getBytes());
-				fos.close();
-				Log.d("FindMyPhone", "Saved last number " + nr);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public static String readLastNumber(Context context) {
-		String lastNr = null;
-		try {
-			byte[] buf = new byte[MAX_PHONE_NUMBER_LENGTH + 1];
-			FileInputStream fis = context.openFileInput("settings_current_phone");
-			int off = 0;
-			int count = 0;
-			while(off < MAX_PHONE_NUMBER_LENGTH && (count = fis.read(buf, off, MAX_PHONE_NUMBER_LENGTH - off)) != -1) {
-				off += count;
-			}
-			fis.close();
-			lastNr = new String(buf, 0, off);
-			Log.d("FindMyPhone", "Read last number " + lastNr);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return lastNr;
 	}
 
 }

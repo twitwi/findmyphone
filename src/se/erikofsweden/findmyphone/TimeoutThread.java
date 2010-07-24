@@ -1,17 +1,23 @@
 package se.erikofsweden.findmyphone;
 
-public class GpsTimeoutThread extends Thread implements Runnable {
+public class TimeoutThread extends Thread implements Runnable {
 
 	private CommandProcessor commandProcessor;
 	private int gpsTimeout;
+	private int networkTimeout;
 
-	public GpsTimeoutThread(CommandProcessor commandProcessor) {
+	public TimeoutThread(CommandProcessor commandProcessor) {
 		this.commandProcessor = commandProcessor;
 		this.gpsTimeout = 0;
 	}
 
 	public void timeoutGps(int timeout) {
 		this.gpsTimeout = timeout;
+		this.start();
+	}
+
+	public void timeoutNetwork(int timeout) {
+		this.networkTimeout = timeout;
 		this.start();
 	}
 
@@ -27,6 +33,16 @@ public class GpsTimeoutThread extends Thread implements Runnable {
 			}
 			commandProcessor.abortGpsSearch();
 		}
+		if(networkTimeout > 0) {
+			try {
+				Thread.sleep(networkTimeout);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			commandProcessor.abortNetworkSearch();
+		}
 	}
+
 
 }
