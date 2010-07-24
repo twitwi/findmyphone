@@ -245,7 +245,7 @@ public class CommandProcessor implements LocationListener {
 	}
 
 	public void processCommand(SmsMessage msg) {
-		Log.d(FindMyPhoneHelper.LOG_TAG, "processCommand from " + currentFromAddress);
+		Log.d(FindMyPhoneHelper.LOG_TAG, "processCommand from " + msg.getOriginatingAddress());
 		processCommand(msg.getMessageBody(), msg.getOriginatingAddress());
 	}
 
