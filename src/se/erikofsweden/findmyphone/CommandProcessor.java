@@ -22,10 +22,10 @@ public class CommandProcessor implements LocationListener {
 
 //	private static final int LOCATION_REQUEST_TIMEOUT = 5000; // 1 second
 //	private static final long USE_OLD_FIX_THRESHOLD = 0; // 0 milliseconds
-	
+
 	private static final int LOCATION_REQUEST_TIMEOUT = 1000 * 60 * 5; // 5 minutes
 	private static final long USE_OLD_FIX_THRESHOLD = 1000 * 60 * 5; // 5 minutes
-	private static final int GPS_UPDATE_INTERVAL = 1000 * 60 * 1; // 1 minutes
+	private static final int GPS_UPDATE_INTERVAL = 1000 * 20; // 20 seconds
 	private Context context;
 	private boolean inSearch;
 	private LocationManager locationManager;
@@ -64,6 +64,8 @@ public class CommandProcessor implements LocationListener {
 					processLocation(location, LocationManager.NETWORK_PROVIDER); // Found an OK Network location
 				} else {
 					failLocationSearch();
+					// TODO Solve the Looper.prepare() business. New activities? Thread pipes?
+					
 					/*
 					 * We need to fix this Looper.prepare() business
 					 * Make sure the timeout-thread starts some kind of intent or activity that will run the requestLocationUpdates()
@@ -91,7 +93,10 @@ public class CommandProcessor implements LocationListener {
 		Log.d(FindMyPhoneHelper.LOG_TAG, "Failed to get location. Taking last known location even though it's old. Considering both GPS and network");
 		Location gpsLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 		Location netLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-		if(netLoc.getTime() > gpsLoc.getTime()) {
+		if(gpsLoc == null && netLoc == null) {
+			Log.d(FindMyPhoneHelper.LOG_TAG, "No last known location at all!");
+			processLocation(null, null);
+		} else if(netLoc != null && (gpsLoc == null || netLoc.getTime() > gpsLoc.getTime())) {
 			Log.d(FindMyPhoneHelper.LOG_TAG, "Failback to last known NETWORK");
 			processLocation(netLoc, LocationManager.NETWORK_PROVIDER);
 		} else {
