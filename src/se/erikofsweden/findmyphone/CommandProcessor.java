@@ -217,14 +217,19 @@ public class CommandProcessor implements LocationListener {
 			// Try Network fix instead
 			Log.d(FindMyPhoneHelper.LOG_TAG, "Trying Network location");
 			retreiveBestLocation(true);
+		} else {
+			Log.d(FindMyPhoneHelper.LOG_TAG, "abortGPSSearch not insearch");
 		}
 	}
+
 	public void abortNetworkSearch() {
 		if(inSearch) {
 			Log.d(FindMyPhoneHelper.LOG_TAG, "AbortNetworkSearch called. Removing listener (Current " + currentProvider + ")");
 			inSearch = false;
 			locationManager.removeUpdates(this);
 			failLocationSearch();
+		} else {
+			Log.d(FindMyPhoneHelper.LOG_TAG, "abourtNetworkSearch not insearch");
 		}
 	}
 
