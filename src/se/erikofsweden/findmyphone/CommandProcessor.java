@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
@@ -32,6 +33,17 @@ public class CommandProcessor implements LocationListener {
 	private String currentFromAddress;
 	private TimeoutThread timeoutThread;
 	private String currentProvider;
+	final Handler handler = new Handler();
+	final Runnable abortGPSRunnable = new Runnable() {
+        public void run() {
+            internalAbortGpsSearch();
+        }
+    };
+	final Runnable abortNetworkRunnable = new Runnable() {
+        public void run() {
+            internalAbortNetworkSearch();
+        }
+    };
 
 	public CommandProcessor(Context context) {
 		this.context = context;
@@ -63,30 +75,34 @@ public class CommandProcessor implements LocationListener {
 					Log.d(FindMyPhoneHelper.LOG_TAG, "Found an acceptable last known location (Network)");
 					processLocation(location, LocationManager.NETWORK_PROVIDER); // Found an OK Network location
 				} else {
-					failLocationSearch();
-					// TODO Solve the Looper.prepare() business. New activities? Thread pipes?
-					
-					/*
-					 * We need to fix this Looper.prepare() business
-					 * Make sure the timeout-thread starts some kind of intent or activity that will run the requestLocationUpdates()
-					 * Right now, let's remove this to make the app work at all
 					Log.d(FindMyPhoneHelper.LOG_TAG, "Request Location Updates (Network)");
 					inSearch = true;
 					currentProvider = LocationManager.NETWORK_PROVIDER;
-					locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
 					timeoutThread = new TimeoutThread(this);
 					timeoutThread.timeoutNetwork(LOCATION_REQUEST_TIMEOUT);
-					*/
+					locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+					try {
+						Thread.sleep(LOCATION_REQUEST_TIMEOUT);
+					} catch (InterruptedException e) {
+						// We don't really care
+					}
 				}
 			}
 		} else { // Try to get GPS fix
 			Log.d(FindMyPhoneHelper.LOG_TAG, "Trying to get GPS Fix");
 			inSearch = true;
 			currentProvider = LocationManager.GPS_PROVIDER;
-			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_UPDATE_INTERVAL, 0, this);
 			timeoutThread = new TimeoutThread(this);
 			timeoutThread.timeoutGps(LOCATION_REQUEST_TIMEOUT);
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_UPDATE_INTERVAL, 0, this);
+			try {
+				Log.d(FindMyPhoneHelper.LOG_TAG, "Main thread sleeping");
+				Thread.sleep(LOCATION_REQUEST_TIMEOUT);
+			} catch (InterruptedException e) {
+				Log.d(FindMyPhoneHelper.LOG_TAG, "Main thread interrupted");
+			}
 		}
+		Log.d(FindMyPhoneHelper.LOG_TAG, "retreiveBestLocation done");
 	}
 
 	private void failLocationSearch() {
@@ -205,11 +221,16 @@ public class CommandProcessor implements LocationListener {
 	public void onProviderDisabled(String provider) {
 		Log.d(FindMyPhoneHelper.LOG_TAG, "Provider " + provider + " disabled!");
 		if(LocationManager.GPS_PROVIDER.equals(provider)) {
-			abortGpsSearch();
+			internalAbortGpsSearch();
 		}
 	}
 
-	void abortGpsSearch() {
+	public void abortGpsSearch() {
+		Log.d(FindMyPhoneHelper.LOG_TAG, "AbortGPSSearch - posting to main thread");
+		handler.post(abortGPSRunnable);
+	}
+
+	private void internalAbortGpsSearch() {
 		if(inSearch) {
 			Log.d(FindMyPhoneHelper.LOG_TAG, "AbortGPSSearch called. Removing listener (Current " + currentProvider + ")");
 			inSearch = false;
@@ -223,6 +244,11 @@ public class CommandProcessor implements LocationListener {
 	}
 
 	public void abortNetworkSearch() {
+		Log.d(FindMyPhoneHelper.LOG_TAG, "AbortNetworkSearch - posting to main thread");
+		handler.post(abortNetworkRunnable);
+	}
+
+	private void internalAbortNetworkSearch() {
 		if(inSearch) {
 			Log.d(FindMyPhoneHelper.LOG_TAG, "AbortNetworkSearch called. Removing listener (Current " + currentProvider + ")");
 			inSearch = false;

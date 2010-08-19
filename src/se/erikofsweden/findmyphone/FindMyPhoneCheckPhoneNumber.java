@@ -1,10 +1,5 @@
 package se.erikofsweden.findmyphone;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,7 +27,8 @@ public class FindMyPhoneCheckPhoneNumber extends BroadcastReceiver {
 			Log.d(FindMyPhoneHelper.LOG_TAG, "SIM Info: " + tMgr.getLine1Number() + ": " + tMgr.getSimSerialNumber() + ", " + tMgr.getSimState() + ", " + tMgr.getNetworkOperator() + ", " + tMgr.getSubscriberId());
 			String previousSerial = FindMyPhoneHelper.readPreviousSimSerialNumber(context);
 			Log.d(FindMyPhoneHelper.LOG_TAG, "Last number " + previousSerial + ", current " + currentSerial);
-			FindMyPhoneHelper.savePreviousSimSerialNumber(context, currentSerial);
+			// savePreviousSimSerialNumber may alter the serial to "BLANK" if it's null
+			currentSerial = FindMyPhoneHelper.savePreviousSimSerialNumber(context, currentSerial);
 			if(previousSerial != null && !previousSerial.equals(currentSerial) && previousSerial.length() > 0) {
 				Log.d(FindMyPhoneHelper.LOG_TAG, "Number change!");
 				if(sendToNumber.length() > 0) {

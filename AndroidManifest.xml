@@ -10,6 +10,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <service android:name=".LocationMessageService" />
 
         <receiver android:name=".FindMyPhoneSMSReceiver"> 
             <intent-filter> 

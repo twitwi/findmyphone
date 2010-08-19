@@ -37,7 +37,7 @@ public class FindMyPhoneHelper {
 		return previousSerial;
 	}
 
-	public static void savePreviousSimSerialNumber(Context context, String serial) {
+	public static String savePreviousSimSerialNumber(Context context, String serial) {
 		if(serial == null || serial.length() <= 0) {
 			serial = "BLANK";
 		}
@@ -53,6 +53,7 @@ public class FindMyPhoneHelper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return serial;
 	}
 
 }

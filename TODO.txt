@@ -6,3 +6,48 @@ Version 1.01
 Version 1.1
 * Set up alarm for detecting SIM-change and deactivate it once the SIM PIN is unlocked
 * Correct SMS sending functionality
+* Write current state to enable more robust process in handling actions
+
+
+
+Mental notes
+
+States:
+* GOT LOCATION SMS / GOT STOLEN SMS
+* DETECTED SIM CHANGE
+* IDLE / STOLEN
+
+* Need to make sure that the app handles all actions
+* Whenever an action is received (Got SMS or Detected SIM), 
+ state should be set and an alarm should be set up.
+* On startup an alarm should be set up if not IDLE state
+* The alarm can handle the state
+* Or use the Handler functionality?
+
+BOOT
+* Check SIM
+ - Locked => Set up alarm
+ - Unlocked and changed => Write state, kick off handler
+ - When handler finishes, save state and new SIM-Serial
+ - If in PROCESS_SMS state, kick off CommandProcessor
+
+ON SMS (CommandProcessor)
+* Check secret message
+ - On secret =>
+  - Write state
+  - Run handler to receive location
+  - When handler finishes, run handler to send message
+  - When handler finishes, write state
+
+
+
+Find by GPS:
+* Setup timeout-thread
+* Request location updates
+* Sleep(timeout)
+  LocationUpdate:
+    - call processLocation
+    - All done!
+  AbortGPS
+    - Will post to main thread internalAbortGPS
+    

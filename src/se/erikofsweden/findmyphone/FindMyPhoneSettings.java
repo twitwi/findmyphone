@@ -1,5 +1,7 @@
 package se.erikofsweden.findmyphone;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -21,10 +23,9 @@ public class FindMyPhoneSettings extends PreferenceActivity {
     		Preference preference) {
     	if(preference.getKey().equals("test_command")) {
         	Log.d(FindMyPhoneHelper.LOG_TAG, "Pref clicked " + preference.getKey()); // + " = " + preference.getSharedPreferences().getString(preference.getKey(), ""));
-			if(cmd == null) {
-				cmd = new CommandProcessor(this.getApplicationContext());
-			}
-			cmd.processCommand("test", null);
+			Intent intent = new Intent(this, LocationMessageService.class);
+			intent.setData(Uri.parse("?destinationAddress=" + ""));
+			startService(intent);
     	}
     	return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
