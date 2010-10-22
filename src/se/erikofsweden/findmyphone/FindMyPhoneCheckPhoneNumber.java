@@ -33,7 +33,7 @@ public class FindMyPhoneCheckPhoneNumber extends BroadcastReceiver {
 				Log.d(FindMyPhoneHelper.LOG_TAG, "Number change!");
 				if(sendToNumber.length() > 0) {
 					if(cmd == null) {
-						cmd = new CommandProcessor(context);
+						cmd = new CommandProcessor(context, intent);
 					}
 					cmd.processCommand("sim_change", sendToNumber);
 				}

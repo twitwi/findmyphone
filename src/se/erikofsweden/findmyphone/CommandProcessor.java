@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -24,7 +25,7 @@ public class CommandProcessor implements LocationListener {
 //	private static final int LOCATION_REQUEST_TIMEOUT = 5000; // 1 second
 //	private static final long USE_OLD_FIX_THRESHOLD = 0; // 0 milliseconds
 
-	private static final int LOCATION_REQUEST_TIMEOUT = 1000 * 60 * 5; // 5 minutes
+	public static final int LOCATION_REQUEST_TIMEOUT = 1000 * 60 * 5; // 5 minutes
 	private static final long USE_OLD_FIX_THRESHOLD = 1000 * 60 * 5; // 5 minutes
 	private static final int GPS_UPDATE_INTERVAL = 1000 * 20; // 20 seconds
 	private Context context;
@@ -44,9 +45,11 @@ public class CommandProcessor implements LocationListener {
             internalAbortNetworkSearch();
         }
     };
+	private Intent startingIntent;
 
-	public CommandProcessor(Context context) {
+	public CommandProcessor(Context context, Intent intent) {
 		this.context = context;
+		this.startingIntent = intent;
 	}
 
 	private void retreiveBestLocation(boolean networkOk) {
@@ -81,25 +84,31 @@ public class CommandProcessor implements LocationListener {
 					timeoutThread = new TimeoutThread(this);
 					timeoutThread.timeoutNetwork(LOCATION_REQUEST_TIMEOUT);
 					locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-					try {
+/*					try {
 						Thread.sleep(LOCATION_REQUEST_TIMEOUT);
 					} catch (InterruptedException e) {
 						// We don't really care
-					}
+					}*/
 				}
 			}
 		} else { // Try to get GPS fix
-			Log.d(FindMyPhoneHelper.LOG_TAG, "Trying to get GPS Fix");
-			inSearch = true;
-			currentProvider = LocationManager.GPS_PROVIDER;
-			timeoutThread = new TimeoutThread(this);
-			timeoutThread.timeoutGps(LOCATION_REQUEST_TIMEOUT);
-			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_UPDATE_INTERVAL, 0, this);
-			try {
-				Log.d(FindMyPhoneHelper.LOG_TAG, "Main thread sleeping");
-				Thread.sleep(LOCATION_REQUEST_TIMEOUT);
-			} catch (InterruptedException e) {
-				Log.d(FindMyPhoneHelper.LOG_TAG, "Main thread interrupted");
+			if(providerExists(LocationManager.GPS_PROVIDER)) {
+				Log.d(FindMyPhoneHelper.LOG_TAG, "Trying to get GPS Fix");
+				inSearch = true;
+				currentProvider = LocationManager.GPS_PROVIDER;
+				timeoutThread = new TimeoutThread(this);
+				timeoutThread.timeoutGps(LOCATION_REQUEST_TIMEOUT);
+				Log.d(FindMyPhoneHelper.LOG_TAG, "requestLocationUpdates");
+				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_UPDATE_INTERVAL, 0, this);
+				Log.d(FindMyPhoneHelper.LOG_TAG, "LocationUpdates called");
+/*				try {
+					Log.d(FindMyPhoneHelper.LOG_TAG, "Main thread sleeping");
+					Thread.sleep(LOCATION_REQUEST_TIMEOUT);
+				} catch (InterruptedException e) {
+					Log.d(FindMyPhoneHelper.LOG_TAG, "Main thread interrupted");
+				}*/
+			} else if(!networkOk) { // Try network
+				retreiveBestLocation(true);
 			}
 		}
 		Log.d(FindMyPhoneHelper.LOG_TAG, "retreiveBestLocation done");
@@ -166,6 +175,10 @@ public class CommandProcessor implements LocationListener {
 			Log.d(FindMyPhoneHelper.LOG_TAG, "No SMS! " + txt);
 		}
 		currentFromAddress = null;
+		if(startingIntent != null) {
+			Log.d(FindMyPhoneHelper.LOG_TAG, "Stopping intent...");
+			context.stopService(startingIntent);
+		}
 	}
 
 	private String getSmsTextByLocation(Location location, String provider) {
@@ -289,6 +302,7 @@ public class CommandProcessor implements LocationListener {
 		currentFromAddress = fromAddress;
 		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		turnOnRinger();
+		Log.d(FindMyPhoneHelper.LOG_TAG, "processCommand, reply to phonenr: " + currentFromAddress);
 		retreiveBestLocation(false);
 	}
 

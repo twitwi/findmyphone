@@ -50,4 +50,10 @@ Find by GPS:
     - All done!
   AbortGPS
     - Will post to main thread internalAbortGPS
-    
+
+
+
+SMSHandler starts LocationMessageService
+ * LMS calls cmdProcessor
+ * LMS starts new thread that waits for cmdProcessor (Sleep)
+  
