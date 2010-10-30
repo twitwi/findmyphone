@@ -8,6 +8,10 @@ Version 1.1
 * Correct SMS sending functionality
 * Write current state to enable more robust process in handling actions
 
+* More verbose email message with gmaps embedded
+* Better response-text: Location-method? Time of location
+* Refactor replyhandling out of CommandProcessor
+* Set to stolen-mode. Sends location every 10th minute
 
 
 Mental notes

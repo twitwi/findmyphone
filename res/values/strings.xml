@@ -18,4 +18,12 @@
 <string name="title_email_text">Email prefix</string>
 <string name="summary_email_text">Email subject must begin with this text and contain the secret text to trigger</string>
 <string name="dialog_email_text">Please enter text that email subject must begin with</string>
+
+<string name="title_email_user">Gmail user</string>
+<string name="summary_email_user">The Gmail user to send replies from</string>
+<string name="dialog_email_user">Please enter the full gmail user (i.e. foobar@gmail.com)</string>
+
+<string name="title_email_password">Gmail password</string>
+<string name="summary_email_password">The password to you gmail account</string>
+<string name="dialog_email_password">Please enter the password to your gmail account</string>
 </resources>

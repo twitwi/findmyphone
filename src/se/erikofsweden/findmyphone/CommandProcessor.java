@@ -5,8 +5,11 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.mail.MessagingException;
+
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -16,6 +19,7 @@ import android.location.LocationProvider;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
@@ -168,6 +172,16 @@ public class CommandProcessor implements LocationListener {
 			if(currentFromAddress.contains("@")) {
 				Log.d(FindMyPhoneHelper.LOG_TAG, "Sending Email response to " + currentFromAddress);
 				Log.d(FindMyPhoneHelper.LOG_TAG, txt.length() + " " + txt);
+				SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+				String user = pref.getString("email_user", "").toLowerCase();
+				String password = pref.getString("email_password", "").toLowerCase();				
+				EmailUtil em = new EmailUtil();
+				try {
+					em.sendEmail("", new String[] { currentFromAddress },"FindMyPhone alert", txt, user, password);
+				} catch (MessagingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} else {
 				Log.d(FindMyPhoneHelper.LOG_TAG, "Sending SMS response to " + currentFromAddress);
 				Log.d(FindMyPhoneHelper.LOG_TAG, txt.length() + " " + txt);

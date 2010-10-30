@@ -55,6 +55,20 @@
                 android:summary="@string/summary_email_text"
                 android:dialogTitle="@string/dialog_email_text" />
 
+        <EditTextPreference
+                android:defaultValue="" 
+                android:key="email_user"
+                android:title="@string/title_email_user"
+                android:summary="@string/summary_email_user"
+                android:dialogTitle="@string/dialog_email_user" />
+
+        <EditTextPreference
+        		android:password="true"
+                android:defaultValue=""
+                android:key="email_password"
+                android:title="@string/title_email_password"
+                android:summary="@string/summary_email_password"
+                android:dialogTitle="@string/dialog_email_password" />
 
 <!--
       <CheckBoxPreference android:key="test_command" android:title="@string/title_test" android:summary="@string/summary_test"></CheckBoxPreference>
