@@ -17,6 +17,7 @@ import javax.mail.internet.MimeMultipart;
 public class EmailUtil extends Authenticator {
 	String defaultHost = "smtp.gmail.com";
 	String defaultPort = "465";
+	String defaultContent = "text/plain";
 	
 	String defaultUser = "";
 	String defaultPassword = "";
@@ -54,8 +55,8 @@ public class EmailUtil extends Authenticator {
 		msg.setSentDate(new Date());
 
 		// setup message body
-		BodyPart messageBodyPart = new MimeBodyPart();
-		messageBodyPart.setText(body);
+		MimeBodyPart messageBodyPart = new MimeBodyPart();
+		messageBodyPart.setContent(body, defaultContent);
 		MimeMultipart multipart = new MimeMultipart();
 		multipart.addBodyPart(messageBodyPart);
 
@@ -71,5 +72,9 @@ public class EmailUtil extends Authenticator {
 	@Override
 	public PasswordAuthentication getPasswordAuthentication() {
 		return new PasswordAuthentication(currentUser, currentPassword);
+	}
+	
+	public void setDefaultContent(String defaultContent) {
+		this.defaultContent = defaultContent;
 	}
 }

@@ -1,6 +1,8 @@
 package se.erikofsweden.findmyphone;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
@@ -29,8 +31,8 @@ public class CommandProcessor implements LocationListener {
 //	private static final int LOCATION_REQUEST_TIMEOUT = 5000; // 1 second
 //	private static final long USE_OLD_FIX_THRESHOLD = 0; // 0 milliseconds
 
-	public static final int LOCATION_REQUEST_TIMEOUT = 1000 * 60 * 5; // 5 minutes
-	private static final long USE_OLD_FIX_THRESHOLD = 1000 * 60 * 5; // 5 minutes
+	public static final int LOCATION_REQUEST_TIMEOUT = 1000 * 60 * 3; // 3 minutes
+	private static final long USE_OLD_FIX_THRESHOLD = 1000 * 60 * 3; // 3 minutes
 	private static final int GPS_UPDATE_INTERVAL = 1000 * 20; // 20 seconds
 	private Context context;
 	private boolean inSearch;
@@ -158,6 +160,7 @@ public class CommandProcessor implements LocationListener {
 
 	private void processLocation(Location location, String provider) {
 		inSearch = false;
+		boolean emailReply = (currentFromAddress.contains("@"));
 		String txt = "";
 		if(location == null) {
 			Log.d(FindMyPhoneHelper.LOG_TAG, "Failed to get location!");
@@ -166,20 +169,32 @@ public class CommandProcessor implements LocationListener {
 			double lat = location.getLatitude();
 			double lon = location.getLongitude();
 			Log.d(FindMyPhoneHelper.LOG_TAG, "Got fix! lat " + lat + ", long " + lon);
-			txt = getSmsTextByLocation(location, provider);
+			if(emailReply) {
+				txt = getEmailTextByLocation(location, provider);
+			} else {
+				txt = getSmsTextByLocation(location, provider);
+			}
 		}
 		if(currentFromAddress != null && currentFromAddress.length() > 0) {
-			if(currentFromAddress.contains("@")) {
+			if(emailReply) {
+				Log.d(FindMyPhoneHelper.LOG_TAG, "About to send email. Waiting 15 secs to let network catch up");
+				try {
+					Thread.sleep(15 * 1000);
+				} catch (InterruptedException e1) {
+					Log.d(FindMyPhoneHelper.LOG_TAG, "Got exception when waiting a short while to send email");
+					e1.printStackTrace();
+				}
 				Log.d(FindMyPhoneHelper.LOG_TAG, "Sending Email response to " + currentFromAddress);
 				Log.d(FindMyPhoneHelper.LOG_TAG, txt.length() + " " + txt);
 				SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 				String user = pref.getString("email_user", "").toLowerCase();
 				String password = pref.getString("email_password", "").toLowerCase();				
 				EmailUtil em = new EmailUtil();
+				em.setDefaultContent("text/html; charset=ISO-8859-1");
 				try {
 					em.sendEmail("", new String[] { currentFromAddress },"FindMyPhone alert", txt, user, password);
 				} catch (MessagingException e) {
-					// TODO Auto-generated catch block
+					Log.d(FindMyPhoneHelper.LOG_TAG, "Got exception when sending email. This should trigger a SendingService");
 					e.printStackTrace();
 				}
 			} else {
@@ -200,6 +215,19 @@ public class CommandProcessor implements LocationListener {
 		}
 	}
 
+	private String getEmailTextByLocation(Location location, String provider) {
+		float acc = location.getAccuracy();
+		if(!location.hasAccuracy()) acc = -1;
+		if(provider == null) {
+			provider = "";
+		}
+		String txt = "FindMyPhone (Acc: " + acc + " - " + provider + ")<br/>\n";
+		txt += getAddressFromLocation(location) + "<br/>\n\n";
+		txt += getGmapsUrl(location, true) + "\n";
+		txt += "<br/>\n";
+		return txt;
+	}
+
 	private String getSmsTextByLocation(Location location, String provider) {
 		float acc = location.getAccuracy();
 		if(!location.hasAccuracy()) acc = -1;
@@ -208,18 +236,29 @@ public class CommandProcessor implements LocationListener {
 		}
 		String txt = "FindMyPhone (Acc: " + acc + " - " + provider + ") ";
 		txt += getAddressFromLocation(location);
-		txt += getGmapsUrl(location);
+		txt += " " + getGmapsUrl(location, false);
 		if(txt.length() > 160) {
 			// Only send the neccesary info
-			txt = "FindMyPhone " + getGmapsUrl(location);
+			txt = "FindMyPhone " + getGmapsUrl(location, false);
 		}
 		return txt;
 	}
 
-	private String getGmapsUrl(Location location) {
+	private String getGmapsUrl(Location location, boolean embed) {
 		String acc = String.valueOf(location.getAccuracy());
-		if(!location.hasAccuracy()) acc = "?";
-		return " http://maps.google.com/maps?q=" + location.getLatitude() + "," + location.getLongitude() + "%20(Your%20Phone%20" + acc + "m)";
+		if(!location.hasAccuracy()) acc = "unk";
+		String result = "";
+		
+		if(embed) {
+			result = "<a href=\"http://maps.google.com/maps?q=" + location.getLatitude() + "," + location.getLongitude() + "+(Your+Phone+" + acc + "m)\">Larger map</a><br/>\n";
+			result = "<img src=\"http://maps.google.com/maps/api/staticmap";
+			result += "?center=" + location.getLatitude() + "," + location.getLongitude() + "&zoom=15";
+			result += "&markers=" + location.getLatitude() + "," + location.getLongitude();
+			result += "&size=500x300&sensor=false\" />";
+		} else {
+			result = "http://maps.google.com/maps?q=" + location.getLatitude() + "," + location.getLongitude() + "+(Your+Phone+" + acc + "m)";
+		}
+		return result;
 	}
 
 	private String getAddressFromLocation(Location location) {
