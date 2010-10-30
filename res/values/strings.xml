@@ -12,4 +12,10 @@
 <string name="title_report_phone">Report phone number</string>
 <string name="summary_report_phone">Send SMS after SIM changes to this number</string>
 <string name="dialog_report_phone">Enter the number that should receive SMS</string>
+
+<string name="title_email_active">Email trigger</string>
+<string name="summary_email_active">Check this to trigger on receipt of email</string>
+<string name="title_email_text">Email prefix</string>
+<string name="summary_email_text">Email subject must begin with this text and contain the secret text to trigger</string>
+<string name="dialog_email_text">Please enter text that email subject must begin with</string>
 </resources>

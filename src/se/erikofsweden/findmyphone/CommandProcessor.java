@@ -165,14 +165,19 @@ public class CommandProcessor implements LocationListener {
 			txt = getSmsTextByLocation(location, provider);
 		}
 		if(currentFromAddress != null && currentFromAddress.length() > 0) {
-			Log.d(FindMyPhoneHelper.LOG_TAG, "Sending SMS response to " + currentFromAddress);
-			Log.d(FindMyPhoneHelper.LOG_TAG, txt.length() + " " + txt);
-			SmsManager smsManager = SmsManager.getDefault();
-			// ********* SENDING SMS HERE *******
-			smsManager.sendTextMessage(currentFromAddress, null, txt, null, null);
-			// ********* SENDING SMS HERE *******
+			if(currentFromAddress.contains("@")) {
+				Log.d(FindMyPhoneHelper.LOG_TAG, "Sending Email response to " + currentFromAddress);
+				Log.d(FindMyPhoneHelper.LOG_TAG, txt.length() + " " + txt);
+			} else {
+				Log.d(FindMyPhoneHelper.LOG_TAG, "Sending SMS response to " + currentFromAddress);
+				Log.d(FindMyPhoneHelper.LOG_TAG, txt.length() + " " + txt);
+				SmsManager smsManager = SmsManager.getDefault();
+				// ********* SENDING SMS HERE *******
+				smsManager.sendTextMessage(currentFromAddress, null, txt, null, null);
+				// ********* SENDING SMS HERE *******
+			}
 		} else {
-			Log.d(FindMyPhoneHelper.LOG_TAG, "No SMS! " + txt);
+			Log.d(FindMyPhoneHelper.LOG_TAG, "No destintaionAddress! " + txt);
 		}
 		currentFromAddress = null;
 		if(startingIntent != null) {
