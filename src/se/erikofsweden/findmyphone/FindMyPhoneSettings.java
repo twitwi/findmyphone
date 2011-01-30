@@ -9,8 +9,6 @@ import android.preference.PreferenceScreen;
 import android.util.Log;
 
 public class FindMyPhoneSettings extends PreferenceActivity {
-    private CommandProcessor cmd;
-
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {

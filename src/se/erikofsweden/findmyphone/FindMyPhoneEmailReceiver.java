@@ -1,7 +1,5 @@
 package se.erikofsweden.findmyphone;
 
-import java.util.Iterator;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

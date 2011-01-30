@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
-import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
