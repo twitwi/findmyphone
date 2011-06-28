@@ -17,6 +17,9 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -358,8 +361,32 @@ public class CommandProcessor implements LocationListener {
 		currentFromAddress = fromAddress;
 		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		turnOnRinger();
+		fireAlarmSound();
 		Log.d(FindMyPhoneHelper.LOG_TAG, "processCommand, reply to phonenr: " + currentFromAddress);
 		retreiveBestLocation(false);
+	}
+
+	private void fireAlarmSound() {
+		Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+		if (alert == null) {
+			alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+			if (alert == null) {
+				alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+			}
+		}
+		MediaPlayer player = new MediaPlayer();
+		try {
+			player.setDataSource(context, alert);
+			AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+			if (manager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
+				player.setAudioStreamType(AudioManager.STREAM_ALARM);
+				player.setLooping(false);
+				player.prepare();
+				player.start();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void turnOnRinger() {

@@ -34,6 +34,11 @@
                 android:title="@string/title_secret_text"
                 android:summary="@string/summary_secret_text"
                 android:dialogTitle="@string/dialog_secret_text" />
+        <CheckBoxPreference
+                android:defaultValue="false" 
+                android:key="alert_sound_active"
+                android:title="@string/title_alert_sound_active"
+                android:summary="@string/summary_alert_sound_active" />
 <!--
         <EditTextPreference
                 android:defaultValue="" 

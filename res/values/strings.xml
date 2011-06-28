@@ -13,6 +13,9 @@
 <string name="summary_report_phone">Send SMS after SIM changes to this number</string>
 <string name="dialog_report_phone">Enter the number that should receive SMS</string>
 
+<string name="title_alert_sound_active">Play alert</string>
+<string name="summary_alert_sound_active">Play alert sound on receipt of SMS</string>
+
 <string name="title_email_active">Email trigger</string>
 <string name="summary_email_active">Check this to trigger on receipt of email</string>
 <string name="title_email_text">Email prefix</string>
