@@ -161,23 +161,28 @@ public class CommandProcessor implements LocationListener {
 
 	private void processLocation(Location location, String provider) {
 		inSearch = false;
-		boolean emailReply = (currentFromAddress.contains("@"));
-		String txt = "";
-		if(location == null) {
-			Log.d(FindMyPhoneHelper.LOG_TAG, "Failed to get location!");
-			txt = "FindMyPhone: Couldn't retreive location via GPS or network. Gave up!";
-		} else {
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+		String emailAddress = (currentFromAddress.contains("@")) ? currentFromAddress : "";
+		boolean smsReply = "".equals(emailAddress);
+		if(smsReply) {
+			emailAddress = pref.getString("send_email_on_sms", "");
+		}
+
+
+		if(location != null) {
 			double lat = location.getLatitude();
 			double lon = location.getLongitude();
 			Log.d(FindMyPhoneHelper.LOG_TAG, "Got fix! lat " + lat + ", long " + lon);
-			if(emailReply) {
-				txt = getEmailTextByLocation(location, provider);
-			} else {
-				txt = getSmsTextByLocation(location, provider);
-			}
 		}
 		if(currentFromAddress != null && currentFromAddress.length() > 0) {
-			if(emailReply) {
+			if(!"".equals(emailAddress)) {
+				String txt = "";
+				if(location == null) {
+					Log.d(FindMyPhoneHelper.LOG_TAG, "Failed to get location!");
+					txt = "FindMyPhone: Couldn't retreive location via GPS or network. Gave up!";
+				} else {
+					txt = getEmailTextByLocation(location, provider);
+				}
 				Log.d(FindMyPhoneHelper.LOG_TAG, "About to send email. Waiting 15 secs to let network catch up");
 				try {
 					Thread.sleep(15 * 1000);
@@ -185,20 +190,28 @@ public class CommandProcessor implements LocationListener {
 					Log.d(FindMyPhoneHelper.LOG_TAG, "Got exception when waiting a short while to send email");
 					e1.printStackTrace();
 				}
-				Log.d(FindMyPhoneHelper.LOG_TAG, "Sending Email response to " + currentFromAddress);
+				Log.d(FindMyPhoneHelper.LOG_TAG, "Sending Email response to " + emailAddress);
 				Log.d(FindMyPhoneHelper.LOG_TAG, txt.length() + " " + txt);
-				SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-				String user = pref.getString("email_user", "").toLowerCase();
-				String password = pref.getString("email_password", "").toLowerCase();				
+				String user = pref.getString("email_user", "");
+				String password = pref.getString("email_password", "");				
 				EmailUtil em = new EmailUtil();
 				em.setDefaultContent("text/html; charset=ISO-8859-1");
 				try {
-					em.sendEmail("", new String[] { currentFromAddress },"FindMyPhone alert", txt, user, password);
+					em.sendEmail("", new String[] { emailAddress },"FindMyPhone alert", txt, user, password);
 				} catch (MessagingException e) {
 					Log.d(FindMyPhoneHelper.LOG_TAG, "Got exception when sending email. This should trigger a SendingService");
 					e.printStackTrace();
 				}
-			} else {
+			}
+			if(smsReply) {
+				String txt = "";
+				if(location == null) {
+					Log.d(FindMyPhoneHelper.LOG_TAG, "Failed to get location!");
+					txt = "FindMyPhone: Couldn't retreive location via GPS or network. Gave up!";
+				} else {
+					txt = getSmsTextByLocation(location, provider);
+				}
+
 				Log.d(FindMyPhoneHelper.LOG_TAG, "Sending SMS response to " + currentFromAddress);
 				Log.d(FindMyPhoneHelper.LOG_TAG, txt.length() + " " + txt);
 				SmsManager smsManager = SmsManager.getDefault();
@@ -207,7 +220,7 @@ public class CommandProcessor implements LocationListener {
 				// ********* SENDING SMS HERE *******
 			}
 		} else {
-			Log.d(FindMyPhoneHelper.LOG_TAG, "No destintaionAddress! " + txt);
+			Log.d(FindMyPhoneHelper.LOG_TAG, "No destinationAddress! " + getSmsTextByLocation(location, provider));
 		}
 		currentFromAddress = null;
 		if(startingIntent != null) {
@@ -226,6 +239,7 @@ public class CommandProcessor implements LocationListener {
 		txt += getAddressFromLocation(location) + "<br/>\n\n";
 		txt += getGmapsUrl(location, true) + "\n";
 		txt += "<br/>\n";
+		txt += getGmapsUrl(location, false);
 		return txt;
 	}
 
