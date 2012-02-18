@@ -161,6 +161,9 @@ public class CommandProcessor implements LocationListener {
 
 	private void processLocation(Location location, String provider) {
 		inSearch = false;
+		if(timeoutThread != null) {
+			timeoutThread.finish();
+		}
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 		String emailAddress = (currentFromAddress.contains("@")) ? currentFromAddress : "";
 		boolean smsReply = "".equals(emailAddress);
@@ -381,25 +384,29 @@ public class CommandProcessor implements LocationListener {
 	}
 
 	private void fireAlarmSound() {
-		Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-		if (alert == null) {
-			alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+		boolean active = pref.getBoolean("alert_sound_active", false);
+		if(active) {
+			Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
 			if (alert == null) {
-				alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+				alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+				if (alert == null) {
+					alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+				}
 			}
-		}
-		MediaPlayer player = new MediaPlayer();
-		try {
-			player.setDataSource(context, alert);
-			AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-			if (manager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
-				player.setAudioStreamType(AudioManager.STREAM_ALARM);
-				player.setLooping(false);
-				player.prepare();
-				player.start();
+			MediaPlayer player = new MediaPlayer();
+			try {
+				player.setDataSource(context, alert);
+				AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+				if (manager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
+					player.setAudioStreamType(AudioManager.STREAM_ALARM);
+					player.setLooping(false);
+					player.prepare();
+					player.start();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
