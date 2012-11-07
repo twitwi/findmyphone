@@ -269,7 +269,7 @@ public class CommandProcessor implements LocationListener {
 		
 		if(embed) {
 			result = "<a href=\"http://maps.google.com/maps?q=" + location.getLatitude() + "," + location.getLongitude() + "+(Your+Phone+" + acc + "m)\">Larger map</a><br/>\n";
-			result = "<img src=\"http://maps.google.com/maps/api/staticmap";
+			result += "<img src=\"http://maps.google.com/maps/api/staticmap";
 			result += "?center=" + location.getLatitude() + "," + location.getLongitude() + "&zoom=15";
 			result += "&markers=" + location.getLatitude() + "," + location.getLongitude();
 			result += "&size=500x300&sensor=false\" />";
