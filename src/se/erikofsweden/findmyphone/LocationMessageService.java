@@ -41,7 +41,7 @@ public class LocationMessageService extends Service {
 				public void run() {
 					Log.d(FindMyPhoneHelper.LOG_TAG, "Thread:Run");
 					try {
-						sleep(CommandProcessor.LOCATION_REQUEST_TIMEOUT * 2);
+						sleep(CommandProcessor.LOCATION_REQUEST_TIMEOUT * 3);
 						Log.d(FindMyPhoneHelper.LOG_TAG, "Thread:Interrupted!");
 					} catch (InterruptedException e) {
 						e.printStackTrace();

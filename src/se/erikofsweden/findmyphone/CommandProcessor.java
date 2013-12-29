@@ -217,10 +217,18 @@ public class CommandProcessor implements LocationListener {
 
 				Log.d(FindMyPhoneHelper.LOG_TAG, "Sending SMS response to " + currentFromAddress);
 				Log.d(FindMyPhoneHelper.LOG_TAG, txt.length() + " " + txt);
-				SmsManager smsManager = SmsManager.getDefault();
-				// ********* SENDING SMS HERE *******
-				smsManager.sendTextMessage(currentFromAddress, null, txt, null, null);
-				// ********* SENDING SMS HERE *******
+				try {
+					SmsManager smsManager = SmsManager.getDefault();
+					// ********* SENDING SMS HERE *******
+					smsManager.sendTextMessage(currentFromAddress, null, txt, null, null);
+					// ********* SENDING SMS HERE *******
+					Log.d(FindMyPhoneHelper.LOG_TAG, "Sent SMS");
+					Thread.sleep(5000);
+					Log.d(FindMyPhoneHelper.LOG_TAG, "Slept 5000ms");
+				} catch(Exception e) {
+					Log.d(FindMyPhoneHelper.LOG_TAG, "Failed SMS: " + e.getMessage());
+					e.printStackTrace();
+				}
 			}
 		} else {
 			Log.d(FindMyPhoneHelper.LOG_TAG, "No destinationAddress! " + getSmsTextByLocation(location, provider));
