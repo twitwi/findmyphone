@@ -1,9 +1,15 @@
 
 # FindMyPhone android application
 
+Changes since import:
+- changed package name and slightly the icon
+- added a build script
+- made sms format configurable (map url...)
+- set some defaults
+
 NB: This code is imported from:
 
-- https://f-droid.org/repository/browse/?fdid=se.erikofsweden.findmyphone
+- https://f-droid.org/repository/browse/?fdid=se.erikofsweden.findmyphone (removed?)
 - License: GPL-2.0
 - https://erikofsweden.blogspot.fr/p/findmyphone.html
 - https://sourceforge.net/projects/findmyphone/
