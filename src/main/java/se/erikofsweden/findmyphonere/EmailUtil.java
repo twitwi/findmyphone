@@ -1,4 +1,4 @@
-package se.erikofsweden.findmyphone;
+package se.erikofsweden.findmyphonere;
 
 import java.util.Date;
 import java.util.Properties;

@@ -1,4 +1,4 @@
-package se.erikofsweden.findmyphone;
+package se.erikofsweden.findmyphonere;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

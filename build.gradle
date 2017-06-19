@@ -1,0 +1,40 @@
+// inspired from https://spring.io/guides/gs/gradle-android/
+// need to run "$gradle wrapper" (possibly commenting the "apply plugin" below)
+// then use "./gradlew"
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.0'
+}
+
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.2'
+    }
+}
+
+ext {
+    compileSdkVersion = 23
+    buildToolsVersion = "25.0.2"
+}
+
+
+apply plugin: 'com.android.application'
+
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "25.0.2"
+    lintOptions {
+        abortOnError false
+    }
+
+}
+
+dependencies {
+    compile fileTree(dir: 'lib', include: ['*.jar'])
+}

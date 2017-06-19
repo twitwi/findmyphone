@@ -1,4 +1,4 @@
-package se.erikofsweden.findmyphone;
+package se.erikofsweden.findmyphonere;
 
 import android.app.Service;
 import android.content.Intent;

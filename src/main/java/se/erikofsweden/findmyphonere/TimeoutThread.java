@@ -1,4 +1,4 @@
-package se.erikofsweden.findmyphone;
+package se.erikofsweden.findmyphonere;
 
 import android.util.Log;
 
