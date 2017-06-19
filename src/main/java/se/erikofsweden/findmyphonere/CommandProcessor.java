@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Formatter;
 
 import javax.mail.MessagingException;
 
@@ -265,12 +269,13 @@ public class CommandProcessor implements LocationListener {
 		txt += " " + getGmapsUrl(location, false);
 		if(txt.length() > 160) {
 			// Only send the neccesary info
-			txt = "FindMyPhone " + getGmapsUrl(location, false);
+			txt = getGmapsUrl(location, false);
 		}
 		return txt;
 	}
 
 	private String getGmapsUrl(Location location, boolean embed) {
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 		String acc = String.valueOf(location.getAccuracy());
 		if(!location.hasAccuracy()) acc = "unk";
 		String result = "";
@@ -282,7 +287,40 @@ public class CommandProcessor implements LocationListener {
 			result += "&markers=" + location.getLatitude() + "," + location.getLongitude();
 			result += "&size=500x300&sensor=false\" />";
 		} else {
-			result = "http://maps.google.com/maps?q=" + location.getLatitude() + "," + location.getLongitude() + "+(Your+Phone+" + acc + "m)";
+                    try {
+                        String format = pref.getString("format_text", "UNSET");
+                            // "@ %3$tT (%3$tF) - http://maps.apple.com/?ll=%1$f,%2$f - http://maps.google.com/?ll=%1$f,%2$f - %4$sm";
+                            // "http://www.openstreetmap.org/?mlat=%1$f&mlon=%2$f#map=15/%1$f/%2$f&layers=CN - %4$sm";
+                        
+                        result = new Formatter(Locale.US).format(
+                                                                 format,
+                                                                 location.getLatitude(),
+                                                                 location.getLongitude(),
+                                                                 Calendar.getInstance(),
+                                                                 acc).toString();
+                        if (result.length() > 150) {
+                            result = result.substring(0, 150);
+                        }
+                    } catch (Exception e) {
+			Log.d(FindMyPhoneHelper.LOG_TAG, "Format error "+e);
+                        // fallback
+                        result = " @ "
+                            //+ new SimpleDateFormat("HH:mm:ss (yyyy-MM-dd)").format(new Date());
+                            + new SimpleDateFormat("HH:mm:ss").format(new Date());
+                        /*
+                        result += " Position:";
+                        result +=
+                            " geo:"
+                            + location.getLatitude()
+                            + "," + location.getLatitude()
+                            ;
+                        */
+                        result +=
+                            " http://maps.google.com/maps?q="
+                            + location.getLatitude()
+                            + "," + location.getLongitude() + "+(Your+Phone+" + acc + "m)";
+                        result += " (default due to error: "+e.getMessage()+")";
+                    }
 		}
 		return result;
 	}

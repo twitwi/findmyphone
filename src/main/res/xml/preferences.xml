@@ -8,9 +8,12 @@
 			android:key="service_active" android:title="@string/title_service_active"
 			android:summary="@string/summary_service_active" />
 
-		<EditTextPreference android:defaultValue=""
+		<EditTextPreference android:defaultValue="@string/default_secret_text"
 			android:key="secret_text" android:title="@string/title_secret_text"
 			android:summary="@string/summary_secret_text" android:dialogTitle="@string/dialog_secret_text" />
+		<EditTextPreference android:defaultValue="@string/default_format_text"
+			android:key="format_text" android:title="@string/title_format_text"
+			android:summary="@string/summary_format_text" android:dialogTitle="@string/dialog_format_text" />
 		<CheckBoxPreference android:defaultValue="false"
 			android:key="alert_sound_active" android:title="@string/title_alert_sound_active"
 			android:summary="@string/summary_alert_sound_active" />

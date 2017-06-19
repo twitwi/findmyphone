@@ -8,6 +8,11 @@
 <string name="title_secret_text">Secret text</string>
 <string name="summary_secret_text">This is the text that you need to supply to remotely control this phone</string>
 <string name="dialog_secret_text">Please enter secret text</string>
+<string name="default_secret_text">Gps</string>
+<string name="default_format_text">%3$tT (%3$tF) - http://maps.apple.com/?ll=%1$f,%2$f - http://maps.google.com/?ll=%1$f,%2$f - %4$sm</string>
+<string name="title_format_text">SMS format</string>
+<string name="summary_format_text">This is a formatter text for the reply SMS</string>
+<string name="dialog_format_text">Please enter the SMS format</string>
 <string name="title_test">Test</string>
 <string name="summary_test">Click to do a dry-run without sending an SMS. Needs debugger connected</string>
 <string name="title_report_phone">Report phone number</string>
