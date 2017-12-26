@@ -423,7 +423,6 @@ public class CommandProcessor implements LocationListener {
 	public void processCommand(String command, String fromAddress) {
 		currentFromAddress = fromAddress;
 		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-		turnOnRinger();
 		fireAlarmSound();
 		Log.d(FindMyPhoneHelper.LOG_TAG, "processCommand, reply to phonenr: " + currentFromAddress);
 		retreiveBestLocation(false);
@@ -433,6 +432,7 @@ public class CommandProcessor implements LocationListener {
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 		boolean active = pref.getBoolean("alert_sound_active", false);
 		if(active) {
+			turnOnRinger();
 			Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
 			if (alert == null) {
 				alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
