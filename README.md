@@ -6,6 +6,7 @@ Changes since import:
 - added a build script
 - made sms format configurable (map url...)
 - set some defaults
+- ask permissions when first used (not at installation) to follow recent UI patterns
 
 NB: This code is imported from:
 

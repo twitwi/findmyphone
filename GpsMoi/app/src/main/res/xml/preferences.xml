@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<PreferenceCategory android:title="@string/title_general_settings">
+
+
+		<CheckBoxPreference android:defaultValue="true"
+			android:key="service_active" android:title="@string/title_service_active"
+			android:summary="@string/summary_service_active" />
+
+		<EditTextPreference android:defaultValue="@string/default_secret_text"
+			android:key="secret_text" android:title="@string/title_secret_text"
+			android:summary="@string/summary_secret_text" android:dialogTitle="@string/dialog_secret_text" />
+		<EditTextPreference android:defaultValue="@string/default_format_text"
+			android:key="format_text" android:title="@string/title_format_text"
+			android:summary="@string/summary_format_text" android:dialogTitle="@string/dialog_format_text" />
+		<CheckBoxPreference android:defaultValue="false"
+			android:key="alert_sound_active" android:title="@string/title_alert_sound_active"
+			android:summary="@string/summary_alert_sound_active" />
+		<!--
+			<EditTextPreference android:defaultValue=""
+			android:key="report_phone" android:title="@string/title_report_phone"
+			android:summary="@string/summary_report_phone"
+			android:dialogTitle="@string/dialog_report_phone" />
+		-->
+	</PreferenceCategory>
+
+	<PreferenceCategory android:title="@string/title_email_settings">
+
+		<CheckBoxPreference android:defaultValue="false"
+			android:key="email_active" android:title="@string/title_email_active"
+			android:summary="@string/summary_email_active" />
+
+		<EditTextPreference android:defaultValue=""
+			android:key="send_email_on_sms" android:title="@string/title_send_email_on_sms"
+			android:summary="@string/summary_send_email_on_sms" android:dialogTitle="@string/dialog_send_email_on_sms" />
+
+		<EditTextPreference android:defaultValue=""
+			android:key="email_text" android:title="@string/title_email_text"
+			android:summary="@string/summary_email_text" android:dialogTitle="@string/dialog_email_text" />
+
+		<EditTextPreference android:defaultValue=""
+			android:key="email_user" android:title="@string/title_email_user"
+			android:summary="@string/summary_email_user" android:dialogTitle="@string/dialog_email_user" />
+
+		<EditTextPreference android:password="true"
+			android:defaultValue="" android:key="email_password" android:title="@string/title_email_password"
+			android:summary="@string/summary_email_password" android:dialogTitle="@string/dialog_email_password" />
+
+	</PreferenceCategory>
+
+	<!--
+		<CheckBoxPreference android:key="test_command"
+		android:title="@string/title_test"
+		android:summary="@string/summary_test"></CheckBoxPreference>
+	-->
+
+</PreferenceScreen>

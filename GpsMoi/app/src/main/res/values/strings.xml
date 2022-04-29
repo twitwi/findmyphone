@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">GpsMoi</string>
+    <string name="title_general_settings">General Settings</string>
+    <string name="title_email_settings">Email Settings</string>
+    <string name="title_service_active">Active</string>
+    <string name="summary_service_active">Check this to activate the service</string>
+    <string name="title_secret_text">Secret text</string>
+    <string name="summary_secret_text">This is the text that you need to supply to remotely control this phone</string>
+    <string name="dialog_secret_text">Please enter secret text</string>
+    <string name="default_secret_text">Gps</string>
+    <string name="default_format_text">%3$tT (%3$tF) - http://maps.apple.com/?ll=%1$f,%2$f - http://maps.google.com/?ll=%1$f,%2$f - %4$sm</string>
+    <string name="title_format_text">SMS format</string>
+    <string name="summary_format_text">This is a formatter text for the reply SMS</string>
+    <string name="dialog_format_text">Please enter the SMS format</string>
+    <string name="title_test">Test</string>
+    <string name="summary_test">Click to do a dry-run without sending an SMS. Needs debugger connected</string>
+    <string name="title_report_phone">Report phone number</string>
+    <string name="summary_report_phone">Send SMS after SIM changes to this number</string>
+    <string name="dialog_report_phone">Enter the number that should receive SMS</string>
+
+    <string name="title_alert_sound_active">Play alert</string>
+    <string name="summary_alert_sound_active">Play alert sound on receipt of SMS</string>
+
+    <string name="title_email_active">Email trigger</string>
+    <string name="summary_email_active">Check this to trigger on receipt of email in K9Mail</string>
+    <string name="title_email_text">Email prefix</string>
+    <string name="summary_email_text">Email subject must begin with this text and contain the secret text to trigger</string>
+    <string name="dialog_email_text">Please enter text that email subject must begin with</string>
+
+    <string name="title_email_user">Gmail user</string>
+    <string name="summary_email_user">The Gmail user to send replies from</string>
+    <string name="dialog_email_user">Please enter the full gmail user (i.e. foobar@gmail.com)</string>
+
+    <string name="title_email_password">Gmail password</string>
+    <string name="summary_email_password">The password to you gmail account</string>
+    <string name="dialog_email_password">Please enter the password to your gmail account</string>
+
+    <string name="title_send_email_on_sms">Send email on SMS</string>
+    <string name="summary_send_email_on_sms">Let an SMS trigger an Email as well</string>
+    <string name="dialog_send_email_on_sms">Enter the email address to send to. Leave empty to deactivate</string>
+</resources>
