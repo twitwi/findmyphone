@@ -24,11 +24,13 @@ public class FindMyPhoneSMSReceiver extends BroadcastReceiver {
 	        {
 	            Object[] pdus = (Object[]) bundle.get("pdus");
 	            for (int i = 0; i < pdus.length; i++) {
-					SmsMessage msg = SmsMessage.createFromPdu((byte[])pdus[i]);
+					SmsMessage msg = SmsMessage.createFromPdu((byte[])pdus[i], bundle.getString("format"));
+					//SmsMessage msg = SmsMessage.createFromPdu((byte[])pdus[i]);
 					String from = msg.getOriginatingAddress();
 					String txt = msg.getMessageBody().toString();
 					if(txt.toLowerCase().indexOf(secret) == 0) {
-						Log.d(FindMyPhoneHelper.LOG_TAG, "Got SMS with secret text " + from);
+						Log.d(FindMyPhoneHelper.LOG_TAG, "Got SMS with secret text " + from + " with format "+bundle.getString("format"));
+						//Log.d(FindMyPhoneHelper.LOG_TAG, "Got SMS with secret text " + from);
 						Intent locationIntent = new Intent(context, LocationMessageService.class);
 						locationIntent.setData(Uri.parse("?destinationAddress=" + from));
 						context.startService(locationIntent);
