@@ -14,6 +14,7 @@ public class FindMyPhoneSMSReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		Log.d(FindMyPhoneHelper.LOG_TAG, "Got SMS");
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 		boolean active = pref.getBoolean("service_active", false);
 		String secret = pref.getString("secret_text", "").toLowerCase();

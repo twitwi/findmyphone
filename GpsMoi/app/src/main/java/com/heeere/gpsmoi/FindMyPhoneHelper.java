@@ -11,7 +11,7 @@ import android.util.Log;
 public class FindMyPhoneHelper {
 
 	private static final String SETTINGS_SIM_SERIAL = "settings_previous_sim_serial";
-	public static final String LOG_TAG = "FindMyPhone";
+	public static final String LOG_TAG = "GpsMoi";
 	private static final int MAX_SIM_SERIAL_LENGTH = 100;
 
 	public static String readPreviousSimSerialNumber(Context context) {
