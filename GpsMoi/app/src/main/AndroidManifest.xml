@@ -28,22 +28,19 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:name=".GpsMoiService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+
     </application>
 
-
-    <!--uses-sdk android:targetSdkVersion="4" android:minSdkVersion="4"/-->
-
-    <uses-permission android:name="android.permission.SEND_SMS">
-    </uses-permission>
-    <uses-permission android:name="android.permission.RECEIVE_SMS">
-    </uses-permission>
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION">
-    </uses-permission>
-    <!--
-        <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
 
 </manifest>

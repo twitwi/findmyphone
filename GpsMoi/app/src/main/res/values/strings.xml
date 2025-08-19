@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">GpsMoi</string>
+
+    <string name="notification_text">GpsMoi Running...</string>
+
+
     <string name="title_general_settings">General Settings</string>
     <string name="title_email_settings">Email Settings</string>
     <string name="title_service_active">Active</string>

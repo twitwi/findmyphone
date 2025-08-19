@@ -33,17 +33,7 @@ public class FindMyPhoneSettings extends PreferenceActivity {
             }
         }
 
-        { // request permissions
-            ActivityCompat.requestPermissions(this,
-                    new String[]{
-                            Manifest.permission.RECEIVE_SMS,
-                            Manifest.permission.SEND_SMS,
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.READ_PHONE_STATE,
-                            Manifest.permission.INTERNET,
-                    }, code);
-        }
+        doRequestPermissions();
 
         addPreferencesFromResource(R.xml.preferences);
 
@@ -59,11 +49,29 @@ public class FindMyPhoneSettings extends PreferenceActivity {
 
     }
 
-    final int code = 42000;
+    final int code = (int) Math.random() * 42000;
 
+    public void doRequestPermissions() {
+        ActivityCompat.requestPermissions(this,
+            new String[]{
+                    Manifest.permission.RECEIVE_SMS,
+                    Manifest.permission.SEND_SMS,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.READ_PHONE_STATE,
+            }, code);
+    }
+    public void doRequestPermissions2() {
+        ActivityCompat.requestPermissions(this,
+            new String[]{ Manifest.permission.ACCESS_BACKGROUND_LOCATION }, code+1);
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == code) {
+            Log.d(FindMyPhoneHelper.LOG_TAG, Arrays.toString(permissions) + Arrays.toString(grantResults));
+            doRequestPermissions2();
+        }
+        if (requestCode == code+1) {
             Log.d(FindMyPhoneHelper.LOG_TAG, Arrays.toString(permissions) + Arrays.toString(grantResults));
         }
     }
@@ -71,6 +79,14 @@ public class FindMyPhoneSettings extends PreferenceActivity {
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
     		Preference preference) {
+
+        if (preference.getKey().equals("service_active")) {
+            boolean active = preference.getSharedPreferences().getBoolean(preference.getKey(), false);
+            if (active) {
+                doRequestPermissions();
+            }
+        }
+
     	if(preference.getKey().equals("test_command")) {
         	Log.d(FindMyPhoneHelper.LOG_TAG, "Pref clicked " + preference.getKey()); // + " = " + preference.getSharedPreferences().getString(preference.getKey(), ""));
 			Intent intent = new Intent(this, LocationMessageService.class);
@@ -79,5 +95,6 @@ public class FindMyPhoneSettings extends PreferenceActivity {
     	}
     	return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
-    
+
+
 }
